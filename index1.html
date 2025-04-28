@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAY I HELP YOU?</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0f0f1a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7928ca, #ff0080);
+            padding: 2rem 1.5rem;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        body.light-mode .header {
+            background: linear-gradient(135deg, #9b4dca, #ff4d8d);
+        }
+
+        .header-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            height: 70px;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .close-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            gap: 16px;
+        }
+
+        .logo {
+            background-color: white;
+            color: #7928ca;
+            width: 40px;
+            top: 2rem;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 0.75rem;
+        }
+
+        .app-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: #0f0f1a;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode .chat-container {
+            background-color: #f5f5f5;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            position: relative;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #5b42f3;
+            color: white;
+            border-top-right-radius: 0.25rem;
+        }
+
+        body.light-mode .user-message {
+            background-color: #7c5dfa;
+        }
+
+        .assistant-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .assistant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .assistant-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .assistant-message {
+            background-color: #2a2a3c;
+            color: white;
+            border-top-left-radius: 0.25rem;
+        }
+
+        body.light-mode .assistant-message {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            padding: 0.75rem 1rem;
+            background-color: #2a2a3c;
+            border-radius: 1rem;
+            border-top-left-radius: 0.25rem;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: typing-animation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-animation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #1a1a2e;
+            border-top: 1px solid #2a2a3c;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.light-mode .input-container {
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-field {
+            flex: 1;
+            background-color: transparent;
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .input-field {
+            color: #333;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .input-field::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .send-btn {
+            background-color: #5b42f3;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .tagline {
+                max-width: 100%;
+            }
+        }
+
+        .circle-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-left: 16px;
+            position: static;
+        }
+
+        .circle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .circle-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: scale(1.1);
+        }
+
+        .location-btn {
+            position: relative;
+        }
+
+        .location-btn.active {
+            animation: pulse 1.5s infinite;
+            background: rgba(255, 160, 0, 0.3);
+        }
+
+        .location-btn.active::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(66, 133, 244, 0.4);
+            animation: ripple 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .youtube-btn i { color: #FF0000; }
+        .maps-btn i { color: #4285F4; }
+        .medical-btn i { color: #34A853; }
+        .location-btn i { color: #FFA000; }
+
+        .medical-results {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .medical-results.active {
+            display: block;
+        }
+
+        .medical-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #2a2a3c;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .medical-item:last-child {
+            border-bottom: none;
+        }
+
+        .medical-item:hover {
+            background: #2a2a3c;
+        }
+
+        .medical-item h3 {
+            color: #34A853;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .medical-item p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .medical-item .distance {
+            color: #FFA000;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .theme-toggle {
+            background: linear-gradient(45deg, #7928ca, #ff0080);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff0080, #7928ca);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .theme-toggle:hover::before {
+            opacity: 1;
+        }
+
+        .theme-toggle i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.5s ease;
+        }
+
+        .theme-toggle:hover i {
+            transform: scale(1.2);
+        }
+
+        body.light-mode .theme-toggle {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .theme-toggle::before {
+            background: linear-gradient(45deg, #ff8c00, #ffd700);
+        }
+
+        body.light-mode .theme-toggle:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .theme-toggle:active {
+            animation: pulse 0.3s ease;
+        }
+
+        .order-btn {
+            background: linear-gradient(45deg, #34A853, #4CAF50);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .order-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #34A853);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .order-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .order-btn:hover::before {
+            opacity: 1;
+        }
+
+        .order-btn i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .order-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .order-btn:active {
+            animation: pulse 0.3s ease;
+        }
+
+        body.light-mode .order-btn {
+            background: linear-gradient(45deg, #2E7D32, #388E3C);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .order-btn::before {
+            background: linear-gradient(45deg, #388E3C, #2E7D32);
+        }
+
+        body.light-mode .order-btn:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .lan-btn {
+            background: linear-gradient(45deg, #6434a8, #6f4caf);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .lan-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #6434a8, #6f4caf);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lan-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .lan-btn:hover::before {
+            opacity: 1;
+        }
+
+        .lan-btn i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .lan-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .lan-btn:active {
+            animation: pulse 0.3s ease;
+        }
+
+        body.light-mode .lan-btn {
+            background: linear-gradient(45deg, #6434a8, #6f4caf);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .lan-btn::before {
+            background: linear-gradient(45deg, #6434a8, #6f4caf);
+        }
+
+        body.light-mode .lan-btn:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-actions">
+            <a href="https://www.youtube.com" target="_blank" class="circle-btn youtube-btn" title="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://www.google.com/maps" target="_blank" class="circle-btn maps-btn" title="Maps">
+                <i class="fas fa-map-marker-alt"></i>
+            </a>
+            <a href="#" class="circle-btn medical-btn" title="Medical">
+                <i class="fas fa-heartbeat"></i>
+            </a>
+            <button class="circle-btn location-btn" title="Location">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+            <button class="close-btn">✕</button>
+        </div>
+        <div class="logo-container">
+            <div class="logo">🤝</div>
+            <div class="app-name">MAY I HELP YOU?</div>
+        </div>
+        <p class="tagline">This Chatbot Is Designed To Answer Only Medicine-related Questions And Politely Decline Other Queries.</p>
+        <div class="medical-results">
+            <!-- Medical results will be populated here -->
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="message user-message">
+            Hello, how are you doing?
+            <span class="message-time">08:15 AM</span>
+        </div>
+
+        <div class="assistant-container">
+            <div class="assistant-avatar">
+                <img src="https://as2.ftcdn.net/jpg/00/69/91/25/1000_F_69912541_zhpeadZFFH7e9xqtqJTGgQUx9bzul4Db.jpg" alt="Assistant">
+            </div>
+            <div class="message assistant-message">
+                I'm doing well, thank you! How can I help you with any medicine-related questions today?
+                <span class="message-time">08:16 AM</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <input type="text" class="input-field" id="userInput" placeholder="Ask about medicines...">
+        <div class="input-actions">
+            <button class="theme-toggle" title="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="https://www.1mg.com" target="_blank" class="order-btn" title="Order Medicines">
+                <i class="fas fa-pills"></i>
+            </a>
+            <a href="https://translate.google.com/?sl=auto&tl=en&text=Hello%2C%20how%20are%20you%3F&op=translate" target="_blank" class="lan-btn" title="lan">
+                <i class="fa-solid fa-language"></i>
+            </a>
+            <button class="action-btn send-btn" id="sendButton">→</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.querySelector('.chat-container');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            let userLocation = null;
+            const locationBtn = document.querySelector('.location-btn');
+            const medicalBtn = document.querySelector('.medical-btn');
+            const medicalResults = document.querySelector('.medical-results');
+            const themeToggle = document.querySelector('.theme-toggle');
+            const body = document.body;
+
+            // Function to add a new message to the chat
+            function addMessage(message, isUser = false) {
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                if (isUser) {
+                    const userMessageDiv = document.createElement('div');
+                    userMessageDiv.className = 'message user-message';
+                    userMessageDiv.innerHTML = `
+                        ${message}
+                        <span class="message-time">${time}</span>
+                    `;
+                    chatContainer.appendChild(userMessageDiv);
+                } else {
+                    const assistantContainer = document.createElement('div');
+                    assistantContainer.className = 'assistant-container';
+                    assistantContainer.innerHTML = `
+                        <div class="assistant-avatar">
+                            <img src="https://as2.ftcdn.net/jpg/00/69/91/25/1000_F_69912541_zhpeadZFFH7e9xqtqJTGgQUx9bzul4Db.jpg" alt="Assistant">
+                        </div>
+                        <div class="message assistant-message">
+                            ${message}
+                            <span class="message-time">${time}</span>
+                        </div>
+                    `;
+                    chatContainer.appendChild(assistantContainer);
+                }
+                
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'assistant-container';
+                typingDiv.innerHTML = `
+                    <div class="assistant-avatar">
+                        <img src="https://as2.ftcdn.net/jpg/00/69/91/25/1000_F_69912541_zhpeadZFFH7e9xqtqJTGgQUx9bzul4Db.jpg" alt="Assistant">
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return typingDiv;
+            }
+
+            // Function to remove typing indicator
+            function removeTypingIndicator(indicator) {
+                if (indicator && indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }
+
+            // Handle send button click
+            sendButton.addEventListener('click', async function() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    userInput.value = '';
+                    
+                    const typingIndicator = showTypingIndicator();
+                    
+                    try {
+                        const response = await fetch('/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ message: message })
+                        });
+                        
+                        const data = await response.json();
+                        removeTypingIndicator(typingIndicator);
+                        addMessage(data.reply);
+                    } catch (error) {
+                        removeTypingIndicator(typingIndicator);
+                        addMessage('Sorry, I encountered an error. Please try again.');
+                    }
+                }
+            });
+
+            // Handle enter key press
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendButton.click();
+                }
+            });
+
+            // Add close button functionality
+            const closeBtn = document.querySelector('.close-btn');
+            closeBtn.addEventListener('click', function() {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '0';
+                
+                setTimeout(() => {
+                    window.close();
+                    if (!window.closed) {
+                        document.body.innerHTML = '<div style="text-align: center; padding: 20px; color: white;">Chat window closed. You can close this tab.</div>';
+                    }
+                }, 500);
+            });
+
+            // Location button functionality
+            locationBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                
+                if (this.classList.contains('active')) {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                userLocation = {
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude
+                                };
+                                alert('Location activated! Click medical button to find nearby facilities.');
+                            },
+                            function(error) {
+                                alert('Error getting location: ' + error.message);
+                                locationBtn.classList.remove('active');
+                            }
+                        );
+                    } else {
+                        alert('Geolocation is not supported by this browser.');
+                        locationBtn.classList.remove('active');
+                    }
+                } else {
+                    userLocation = null;
+                    medicalResults.classList.remove('active');
+                }
+            });
+
+            // Medical button functionality
+            medicalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (!locationBtn.classList.contains('active')) {
+                    alert('Please activate location first by clicking the location button.');
+                    return;
+                }
+
+                if (userLocation) {
+                    // Simulate finding nearby medical facilities
+                    const mockFacilities = [
+                        {
+                            name: "City General Hospital",
+                            address: "123 Medical Center Dr",
+                            distance: "0.5 km",
+                            rating: "4.5"
+                        },
+                        {
+                            name: "Community Health Clinic",
+                            address: "456 Healthcare Ave",
+                            distance: "1.2 km",
+                            rating: "4.2"
+                        },
+                        {
+                            name: "Emergency Care Center",
+                            address: "789 Wellness St",
+                            distance: "2.0 km",
+                            rating: "4.0"
+                        }
+                    ];
+
+                    // Populate results
+                    medicalResults.innerHTML = mockFacilities.map(facility => `
+                        <div class="medical-item">
+                            <h3>${facility.name}</h3>
+                            <p>${facility.address}</p>
+                            <div class="distance">${facility.distance} • Rating: ${facility.rating}</div>
+                        </div>
+                    `).join('');
+
+                    medicalResults.classList.toggle('active');
+                }
+            });
+
+            // Close medical results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!medicalResults.contains(e.target) && !medicalBtn.contains(e.target)) {
+                    medicalResults.classList.remove('active');
+                }
+            });
+
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                const icon = this.querySelector('i');
+                if (body.classList.contains('light-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
